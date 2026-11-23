@@ -287,10 +287,6 @@ body.cropping .item.selected { cursor: grab; }
 .bv-bar, .bv-nav { display: flex; align-items: center; gap: 20px; padding: 12px 20px; background: var(--cream); }
 .bv-bar { border-bottom: 2px solid var(--coral); }
 .bv-nav { justify-content: center; gap: 10px; border-top: 2px solid var(--coral); }
-.bv-title { display: flex; flex-direction: column; }
-.bv-title .mini { margin: 0 0 2px; }
-.bv-name { font: 400 28px/1 var(--display); color: var(--coral); text-transform: uppercase; }
-.bv-name i { font: italic 800 26px/1 var(--script); color: var(--purple); text-transform: none; }
 .bv-cover-wrap { margin-left: auto; display: flex; align-items: center; gap: 10px; }
 .bv-cover-wrap .mini { margin: 0; }
 .bv-cover { width: 330px; }
