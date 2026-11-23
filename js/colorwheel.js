@@ -31,20 +31,13 @@ export function rgbToHsv(r, g, b) {
   }
   return { h, s: mx ? d / mx : 0, v: mx };
 }
-const luminance = ([r, g, b]) => (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 
-export function createColorWheel(root, { value = '#FFFFFF', swatches = [], onInput = () => {}, onChange = () => {} } = {}) {
+export function createColorWheel(root, { value = '#FFFFFF', onInput = () => {}, onChange = () => {} } = {}) {
   root.classList.add('cw');
   root.innerHTML = `
     <div class="cw-disc"><canvas></canvas><span class="cw-marker"></span></div>
     <label class="cw-row"><span class="mini">Brightness</span><input class="cw-value" type="range" min="0" max="100" step="1" aria-label="Brightness"></label>
-    <div class="cw-row cw-hexrow"><span class="cw-chip"></span><input class="cw-hex field" type="text" spellcheck="false" maxlength="7" aria-label="Hex colour"></div>
-    <div class="cw-swatches">${swatches
-      .map((s) => {
-        const light = luminance(hexToRgb(s.hex)) > 0.6;
-        return `<button type="button" class="cw-sw" data-hex="${s.hex}" title="${s.name} · ${s.hex}" style="--c:${s.hex};--t:${light ? '#55263D' : '#fff'}"><b>${s.name}</b><small>${s.hex}</small></button>`;
-      })
-      .join('')}</div>`;
+    <div class="cw-row cw-hexrow"><span class="cw-chip"></span><input class="cw-hex field" type="text" spellcheck="false" maxlength="7" aria-label="Hex colour"></div>`;
 
   const SIZE = 176;
   const disc = root.querySelector('.cw-disc');
@@ -53,7 +46,6 @@ export function createColorWheel(root, { value = '#FFFFFF', swatches = [], onInp
   const slider = root.querySelector('.cw-value');
   const hexIn = root.querySelector('.cw-hex');
   const chip = root.querySelector('.cw-chip');
-  const sws = [...root.querySelectorAll('.cw-sw')];
   const dpr = Math.min(2, window.devicePixelRatio || 1);
   cv.width = cv.height = Math.round(SIZE * dpr);
   cv.style.width = cv.style.height = SIZE + 'px';
@@ -93,7 +85,6 @@ export function createColorWheel(root, { value = '#FFFFFF', swatches = [], onInp
     slider.style.setProperty('--top', rgbToHex(hsvToRgb(hsv.h, hsv.s, 1)));
     chip.style.background = hex;
     if (!skipHexField) hexIn.value = hex;
-    for (const b of sws) b.classList.toggle('on', b.dataset.hex.toUpperCase() === hex);
   }
   function fromHsv() {
     hex = rgbToHex(hsvToRgb(hsv.h, hsv.s, hsv.v));
@@ -146,12 +137,6 @@ export function createColorWheel(root, { value = '#FFFFFF', swatches = [], onInp
     if (setHex(hexIn.value.trim(), true)) onChange(hex);
     else sync();
   });
-  for (const b of sws) {
-    b.addEventListener('click', () => {
-      setHex(b.dataset.hex, true);
-      onChange(hex);
-    });
-  }
 
   sync();
   return {

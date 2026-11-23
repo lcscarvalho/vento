@@ -1,19 +1,13 @@
-import { createColorWheel } from './colorwheel.js?v=202611230135';
-import { readImage, fmtBytes, previewSize } from './images.js?v=202611230135';
-import { createBook } from './book.js?v=202611230135';
-import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611230135';
-import * as db from './store.js?v=202611230135';
+import { createColorWheel } from './colorwheel.js?v=202611230136';
+import { readImage, fmtBytes, previewSize } from './images.js?v=202611230136';
+import { createBook } from './book.js?v=202611230136';
+import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611230136';
+import * as db from './store.js?v=202611230136';
 
 // All internal measurements are in millimetres. On screen: px = mm × scale.
 const DPI = 300;
 const PAD = 160;                 // desk margin around the sheets (px)
 const MM_PX = 96 / 25.4;         // 100% zoom = actual size
-const BRAND = [
-  { name: 'White', hex: '#FFFFFF' },
-  { name: 'Butter Cream', hex: '#F5E8CC' },
-  { name: 'Coral Orange', hex: '#F34E3D' },
-  { name: 'Galactic Purple', hex: '#55263D' },
-];
 const PRESETS = [
   ['10x15', 100, 150, '10 × 15 cm'],
   ['13x18', 130, 180, '13 × 18 cm'],
@@ -1051,7 +1045,6 @@ async function newAlbum() {
 async function boot() {
   wheel = createColorWheel($('#wheel'), {
     value: S.bg,
-    swatches: BRAND,
     onInput: (hex) => {
       S.bg = hex;
       for (const d of sheetsL.children) d.style.background = hex;

@@ -205,18 +205,6 @@ kbd { font: 700 10px var(--ui); border: 1.2px solid var(--coral); border-radius:
 .cw-hexrow { grid-template-columns: 36px 1fr; }
 .cw-chip { width: 36px; height: 36px; border: 1.5px solid var(--coral); border-radius: 2px; }
 .cw-hex { text-transform: uppercase; letter-spacing: .06em; }
-.cw-swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
-.cw-sw {
-  position: relative; height: 72px; padding: 0 6px 6px; border: 0; border-radius: 6px; cursor: pointer;
-  background: var(--c); display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; text-align: left;
-  box-shadow: inset 0 0 0 1px rgba(85, 38, 61, .14); color: var(--t, #fff);
-  transition: transform .12s;
-}
-.cw-sw:hover { transform: translateY(-2px); }
-.cw-sw b { font: 500 10px/1.1 'Helvetica Neue', Arial, sans-serif; letter-spacing: 0; }
-.cw-sw b::after { content: ''; display: block; width: 14px; height: 1px; background: currentColor; margin: 4px 0 3px; }
-.cw-sw small { font: 600 7.5px 'Helvetica Neue', Arial, sans-serif; letter-spacing: .02em; opacity: .9; }
-.cw-sw.on { box-shadow: 0 0 0 2px var(--cream), 0 0 0 3.5px var(--purple); }
 
 /* ---------- Desk ---------- */
 .work { position: relative; min-width: 0; min-height: 0; }
