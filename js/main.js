@@ -3,12 +3,12 @@ import { readImage, fmtBytes } from './images.js';
 import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js';
 import * as db from './store.js';
 
-// Todas as medidas internas em milímetros. Na tela: px = mm × scale.
+// All internal measurements are in millimetres. On screen: px = mm × scale.
 const DPI = 300;
-const PAD = 160;                 // margem da mesa em volta das folhas (px)
-const MM_PX = 96 / 25.4;         // 100% de zoom = tamanho real
+const PAD = 160;                 // desk margin around the sheets (px)
+const MM_PX = 96 / 25.4;         // 100% zoom = actual size
 const BRAND = [
-  { name: 'Branco', hex: '#FFFFFF' },
+  { name: 'White', hex: '#FFFFFF' },
   { name: 'Oat Cream', hex: '#E9E5D6' },
   { name: 'Coffee Blue', hex: '#2589D8' },
   { name: 'Tangerine', hex: '#FF783D' },
@@ -30,7 +30,7 @@ const ALL_HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
 const S = structuredClone(DEFAULTS);
 const assets = new Map();        // id -> { id, name, size, file, preview, previewUrl, nw, nh }
-const nodes = new Map();         // itemId -> { c, g } (nó recortado e "fantasma" fora da folha)
+const nodes = new Map();         // itemId -> { c, g } (clipped node + faded "ghost" outside the sheet)
 let scale = 1;
 let sel = null;
 let cropMode = false;
@@ -38,11 +38,11 @@ let drag = null;
 let exporting = false;
 let wheel;
 
-// ---------- utilidades ----------
+// ---------- helpers ----------
 const $ = (s) => document.querySelector(s);
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 const uid = () => Math.random().toString(36).slice(2, 10);
-const fmt = (mm, d = 1) => (mm / 10).toLocaleString('pt-BR', { maximumFractionDigits: d });
+const fmt = (mm, d = 1) => (mm / 10).toLocaleString('en-US', { maximumFractionDigits: d });
 const parseCm = (s) => {
   const v = parseFloat(String(s).replace(/\s/g, '').replace(',', '.'));
   return Number.isFinite(v) ? v * 10 : null;
@@ -75,7 +75,7 @@ function toast(msg, kind = '') {
   toastTimer = setTimeout(() => (t.className = kind), kind === 'error' ? 6000 : 3200);
 }
 
-// ---------- histórico (desfazer/refazer) ----------
+// ---------- history (undo/redo) ----------
 const hist = { past: [], future: [] };
 let lastSnap = '';
 const snapshot = () =>
@@ -112,7 +112,7 @@ function redo() {
   restore(lastSnap);
 }
 
-// ---------- salvamento local ----------
+// ---------- local save ----------
 let saveTimer, saveWarned = false;
 function scheduleSave() {
   clearTimeout(saveTimer);
@@ -125,7 +125,7 @@ function warnSave(e) {
   console.warn(e);
   if (saveWarned) return;
   saveWarned = true;
-  toast('Não deu para salvar o álbum neste navegador (espaço cheio?). Baixe as folhas antes de fechar.', 'error');
+  toast('Could not save the album in this browser (storage full?). Download your sheets before closing.', 'error');
 }
 
 // ---------- DOM ----------
@@ -166,21 +166,21 @@ function renderControls() {
 
   const { W, H } = sheetPixels(S.w, S.h, DPI);
   $('#export-info').textContent =
-    `${plural(S.count, 'arquivo', 'arquivos')} · ${W.toLocaleString('pt-BR')} × ${H.toLocaleString('pt-BR')} px cada` +
-    (S.count > 1 ? ' · em .zip' : '');
+    `${plural(S.count, 'file', 'files')} · ${W.toLocaleString('en-US')} × ${H.toLocaleString('en-US')} px each` +
+    (S.count > 1 ? ' · in a .zip' : '');
 
   const used = new Set(S.items.map((i) => i.assetId));
   let bytes = 0;
   for (const id of used) bytes += assets.get(id)?.size || 0;
   $('#img-count').textContent = S.items.length
-    ? `${plural(S.items.length, 'imagem', 'imagens')} na mesa · ${fmtBytes(bytes)} em originais`
+    ? `${plural(S.items.length, 'image', 'images')} on the desk · ${fmtBytes(bytes)} of originals`
     : '';
 }
 
 function renderStage() {
   const g = geo();
   const sw = g.W * scale, sh = g.H * scale;
-  const extraW = g.row ? 96 : 0, extraH = g.row ? 0 : 96; // espaço do botão "+ folha"
+  const extraW = g.row ? 96 : 0, extraH = g.row ? 0 : 96; // room for the "+ sheet" button
   board.style.width = sw + PAD * 2 + extraW + 'px';
   board.style.height = sh + PAD * 2 + extraH + 'px';
   Object.assign(stage.style, { left: PAD + 'px', top: PAD + 'px', width: sw + 'px', height: sh + 'px' });
@@ -261,7 +261,7 @@ function renderItems() {
   for (const [id, n] of nodes) {
     if (!keep.has(id)) { n.c.remove(); n.g.remove(); nodes.delete(id); }
   }
-  // a ordem no DOM é a ordem de empilhamento ("trazer para frente / enviar para trás")
+  // DOM order is stacking order ("bring to front / send to back")
   S.items.forEach((it, i) => {
     const n = nodes.get(it.id);
     if (clipL.children[i] !== n.c) clipL.insertBefore(n.c, clipL.children[i] || null);
@@ -270,21 +270,21 @@ function renderItems() {
   $('#empty').hidden = S.items.length > 0;
 }
 
-// ---------- seleção ----------
-let ov = null; // referências do overlay atual
+// ---------- selection ----------
+let ov = null; // refs to the current overlay
 function toolbarHtml(it) {
   const b = (act, icon, title, extra = '') =>
     `<button type="button" data-act="${act}" title="${title}" aria-label="${title}" ${extra}><svg class="ico"><use href="#i-${icon}"/></svg></button>`;
   return `<div class="sel-toolbar">
-    ${b('lock', it.lock ? 'lock' : 'unlock', it.lock ? 'Proporção travada — clique para liberar (L)' : 'Proporção livre — clique para travar (L)', it.lock ? 'class="on"' : '')}
-    ${b('crop', 'crop', it.lock ? 'Enquadrar: libere a proporção primeiro' : 'Enquadrar (duplo clique)', it.lock ? 'disabled' : cropMode ? 'class="on"' : '')}
+    ${b('lock', it.lock ? 'lock' : 'unlock', it.lock ? 'Aspect ratio locked — click to unlock (L)' : 'Free aspect ratio — click to lock (L)', it.lock ? 'class="on"' : '')}
+    ${b('crop', 'crop', it.lock ? 'Reframe: unlock the aspect ratio first' : 'Reframe (double-click)', it.lock ? 'disabled' : cropMode ? 'class="on"' : '')}
     <i></i>
-    ${b('fill', 'fill', 'Preencher a folha')}
-    ${b('front', 'front', 'Trazer para frente ( ] )')}
-    ${b('back', 'back', 'Enviar para trás ( [ )')}
-    ${b('dup', 'copy', 'Duplicar (⌘D)')}
+    ${b('fill', 'fill', 'Fill the sheet')}
+    ${b('front', 'front', 'Bring to front ( ] )')}
+    ${b('back', 'back', 'Send to back ( [ )')}
+    ${b('dup', 'copy', 'Duplicate (⌘D)')}
     <i></i>
-    ${b('del', 'trash', 'Excluir (Delete)')}
+    ${b('del', 'trash', 'Delete (Delete)')}
   </div>`;
 }
 function renderOverlay() {
@@ -333,7 +333,7 @@ function updateOverlay() {
     });
   }
   ov.badge.textContent = cropMode
-    ? 'Arraste para enquadrar · Esc sai'
+    ? 'Drag to reframe · Esc to exit'
     : `${fmt(it.w)} × ${fmt(it.h)} cm · ${Math.round(effDpi(it, a))} dpi`;
 }
 
@@ -351,9 +351,9 @@ function renderSelPanel() {
   $('#export-num').textContent = it ? '#05' : '#04';
   if (!it) return;
   const a = assets.get(it.assetId);
-  $('#sel-name').textContent = a?.name || 'imagem';
+  $('#sel-name').textContent = a?.name || 'image';
   $('#sel-name').title = a?.name || '';
-  $('#sel-px').textContent = a ? `${a.nw.toLocaleString('pt-BR')} × ${a.nh.toLocaleString('pt-BR')} px originais` : '';
+  $('#sel-px').textContent = a ? `${a.nw.toLocaleString('en-US')} × ${a.nh.toLocaleString('en-US')} px original` : '';
   setField($('#sel-w'), fmt(it.w, 2));
   setField($('#sel-h'), fmt(it.h, 2));
   setField($('#sel-x'), fmt(it.x, 2));
@@ -361,18 +361,18 @@ function renderSelPanel() {
   const lock = $('#sel-lock');
   lock.setAttribute('aria-pressed', String(it.lock));
   lock.querySelector('use').setAttribute('href', it.lock ? '#i-lock' : '#i-unlock');
-  lock.querySelector('b').textContent = it.lock ? 'Manter proporção' : 'Proporção livre';
-  lock.querySelector('small').textContent = it.lock ? 'Redimensiona sem distorcer' : 'A moldura corta a foto · duplo clique enquadra';
+  lock.querySelector('b').textContent = it.lock ? 'Keep aspect ratio' : 'Free aspect ratio';
+  lock.querySelector('small').textContent = it.lock ? 'Resizes without distortion' : 'The frame crops the photo · double-click to reframe';
   $('#sel-crop').disabled = it.lock;
   $('#sel-crop').classList.toggle('on', cropMode);
 
   const dpi = Math.round(effDpi(it, a));
   const [cls, txt] =
-    dpi >= 280 ? ['good', 'nítida na impressão'] : dpi >= 180 ? ['ok', 'boa para impressão'] : ['low', 'pouca resolução para esse tamanho'];
+    dpi >= 280 ? ['good', 'sharp in print'] : dpi >= 180 ? ['ok', 'good for print'] : ['low', 'low resolution for this size'];
   $('#sel-dpi').innerHTML = `<span class="dpi ${cls}">${dpi} dpi</span><span>${txt}</span>`;
 }
 
-// ---------- ações sobre a imagem ----------
+// ---------- image actions ----------
 function sheetFor(it) {
   const rects = sheetRects();
   let best = 0, bestArea = -1;
@@ -396,7 +396,7 @@ function setLock(it, lock) {
   const a = assets.get(it.assetId);
   it.lock = lock;
   if (lock && a) {
-    // volta à proporção original mantendo a largura e o centro
+    // back to the original aspect ratio, keeping width and centre
     const cy = it.y + it.h / 2;
     it.h = it.w * (a.nh / a.nw);
     it.y = cy - it.h / 2;
@@ -414,7 +414,7 @@ function act(name) {
       setLock(it, !it.lock);
       break;
     case 'crop':
-      if (it.lock) return toast('Libere a proporção para enquadrar a foto dentro da moldura.');
+      if (it.lock) return toast('Unlock the aspect ratio to reframe the photo inside its frame.');
       cropMode = !cropMode;
       break;
     case 'fill': {
@@ -449,7 +449,7 @@ function act(name) {
   renderSelPanel();
 }
 
-// ---------- imagens ----------
+// ---------- images ----------
 function targetSheet() {
   const g = geo();
   const cx = (vp.scrollLeft + vp.clientWidth / 2 - board.offsetLeft - PAD) / scale;
@@ -474,7 +474,7 @@ async function addFilesNow(files) {
   if (navigator.storage?.persist) navigator.storage.persist().catch(() => {});
   for (let i = 0; i < files.length; i++) {
     const f = files[i];
-    status.textContent = `Preparando ${i + 1} de ${files.length} · ${f.name}`;
+    status.textContent = `Preparing ${i + 1} of ${files.length} · ${f.name}`;
     try {
       const { nw, nh, preview } = await readImage(f);
       const id = uid();
@@ -494,7 +494,7 @@ async function addFilesNow(files) {
     } catch (e) {
       console.warn(f.name, e);
       const heic = /\.(heic|heif)$/i.test(f.name);
-      toast(`Não consegui abrir ${f.name}${heic ? ' — HEIC só abre no Safari; exporte como JPG' : ''}.`, 'error');
+      toast(`Could not open ${f.name}${heic ? ' — HEIC only opens in Safari; export it as JPG' : ''}.`, 'error');
     }
   }
   if (lastId) {
@@ -504,13 +504,13 @@ async function addFilesNow(files) {
     renderItems();
     renderOverlay();
     renderSelPanel();
-    if (added > 1) toast(`${added} imagens adicionadas`);
+    if (added > 1) toast(`${added} images added`);
   }
   renderControls();
 }
 
 // ---------- zoom ----------
-let autoFit = true; // reajusta ao redimensionar a janela até o usuário mexer no zoom
+let autoFit = true; // refit on window resize until the user changes the zoom
 new ResizeObserver(() => autoFit && vp.clientWidth > 0 && fit()).observe(vp);
 
 function setScale(ns, anchor) {
@@ -533,7 +533,7 @@ function fit() {
   autoFit = true;
   if (!vp.clientWidth) return;
   const g = geo();
-  const labelW = g.row ? 0 : 100; // rótulos das folhas empilhadas ficam à esquerda
+  const labelW = g.row ? 0 : 100; // stacked-sheet labels sit on the left
   const s = Math.min((vp.clientWidth - 120 - labelW) / g.W, (vp.clientHeight - 130) / g.H);
   scale = clamp(s, 0.02, 60);
   renderStage();
@@ -544,7 +544,7 @@ function fit() {
   vp.scrollTop = board.offsetTop + PAD + (g.H * scale) / 2 - vp.clientHeight / 2 + 8;
 }
 
-// ---------- ímã (alinhamento) ----------
+// ---------- snapping ----------
 function snapTargets(excludeId) {
   const xs = [], ys = [];
   for (const r of sheetRects()) {
@@ -576,7 +576,7 @@ function renderGuides(list) {
   }
 }
 
-// ---------- arrastar / redimensionar / enquadrar ----------
+// ---------- drag / resize / reframe ----------
 function toWorld(e) {
   const r = stage.getBoundingClientRect();
   return { x: (e.clientX - r.left) / scale, y: (e.clientY - r.top) / scale };
@@ -585,7 +585,7 @@ function toWorld(e) {
 function resizeItem(it, d, dx, dy, shift, thr, guides) {
   const o = d.o, dir = d.dir, MIN = 4;
   const a = assets.get(it.assetId);
-  const keep = it.lock !== shift; // Shift inverte a trava enquanto arrasta
+  const keep = it.lock !== shift; // Shift inverts the lock while dragging
   const T = thr ? snapTargets(it.id) : null;
   if (keep && dir.length === 2) {
     const ar = it.lock && a ? a.nw / a.nh : o.w / o.h;
@@ -619,7 +619,7 @@ function resizeItem(it, d, dx, dy, shift, thr, guides) {
     if (dir.includes('n')) Tp = Math.min(sn(o.y + dy, T?.ys, 'y'), B - MIN);
     if (dir.includes('s')) B = Math.max(sn(o.y + o.h + dy, T?.ys, 'y'), Tp + MIN);
     Object.assign(it, { x: L, y: Tp, w: R - L, h: B - Tp });
-    if (it.lock) it.lock = false; // virou moldura livre
+    if (it.lock) it.lock = false; // now a free frame
   }
 }
 
@@ -627,7 +627,7 @@ let lastDownId = null;
 vp.addEventListener('pointerdown', (e) => {
   if (e.button !== 0) return;
   if (e.target.closest('.sel-toolbar, .add-sheet')) return;
-  if (e.target === vp && (e.offsetX > vp.clientWidth || e.offsetY > vp.clientHeight)) return; // barra de rolagem
+  if (e.target === vp && (e.offsetX > vp.clientWidth || e.offsetY > vp.clientHeight)) return; // scrollbar
   const p = toWorld(e);
   const hd = e.target.closest('[data-handle]');
   lastDownId = null;
@@ -701,7 +701,7 @@ vp.addEventListener('dblclick', () => {
   const it = getSel();
   if (!it || lastDownId !== it.id) return;
   if (it.lock) {
-    toast('Libere a proporção (cadeado) para enquadrar a foto dentro da moldura.');
+    toast('Unlock the aspect ratio (padlock) to reframe the photo inside its frame.');
     return;
   }
   cropMode = !cropMode;
@@ -723,7 +723,7 @@ vp.addEventListener(
   { passive: false }
 );
 
-// ---------- arquivos: botão, arrastar e soltar, colar ----------
+// ---------- files: button, drag and drop, paste ----------
 const fileInput = $('#file-input');
 $('#add-images').addEventListener('click', () => fileInput.click());
 fileInput.addEventListener('change', () => {
@@ -761,12 +761,12 @@ document.addEventListener('paste', (e) => {
   if (files?.length) addFiles(files);
 });
 
-// ---------- painel ----------
+// ---------- panel ----------
 function bindPanel() {
   const preset = $('#preset');
   preset.innerHTML =
     PRESETS.map(([id, , , label]) => `<option value="${id}">${label}</option>`).join('') +
-    '<option value="custom">Personalizado</option>';
+    '<option value="custom">Custom</option>';
   preset.addEventListener('change', () => {
     const p = PRESETS.find((p) => p[0] === preset.value);
     if (!p) return;
@@ -781,7 +781,7 @@ function bindPanel() {
     const el = $(id);
     el.addEventListener('change', () => {
       const v = parseCm(el.value);
-      if (v == null || v < 10) { el.value = fmt(S[key]); return toast('Use um tamanho a partir de 1 cm.'); }
+      if (v == null || v < 10) { el.value = fmt(S[key]); return toast('Use a size of at least 1 cm.'); }
       S[key] = clamp(Math.round(v * 10) / 10, 10, 3000);
       el.value = fmt(S[key]);
       commit();
@@ -816,7 +816,7 @@ function bindPanel() {
   $('#layout').addEventListener('click', (e) => {
     const l = e.target.closest('[data-layout]')?.dataset.layout;
     if (!l || l === S.layout) return;
-    // leva cada imagem junto com a folha em que está
+    // move each image along with the sheet it sits on
     const before = geo();
     const moved = S.items.map((it) => {
       const r = sheetFor(it);
@@ -887,7 +887,7 @@ function bindPanel() {
   $('#new-album').addEventListener('click', newAlbum);
 }
 
-// ---------- teclado ----------
+// ---------- keyboard ----------
 document.addEventListener('keydown', (e) => {
   const t = e.target;
   if (t.closest?.('input, select, textarea')) {
@@ -930,7 +930,7 @@ document.addEventListener('keydown', (e) => {
   }
 });
 
-// ---------- exportação ----------
+// ---------- export ----------
 async function doExport() {
   if (exporting) return;
   exporting = true;
@@ -940,8 +940,8 @@ async function doExport() {
   const name = `vento-${stamp}`;
   modal.hidden = false;
   const progress = (i, n, W, H) => {
-    $('#modal-title').textContent = `Folha ${i + 1} de ${n}`;
-    $('#modal-sub').textContent = `${W.toLocaleString('pt-BR')} × ${H.toLocaleString('pt-BR')} px · ${S.format.toUpperCase()}`;
+    $('#modal-title').textContent = `Sheet ${i + 1} of ${n}`;
+    $('#modal-sub').textContent = `${W.toLocaleString('en-US')} × ${H.toLocaleString('en-US')} px · ${S.format.toUpperCase()}`;
     $('#modal-bar').style.width = (i / n) * 100 + '%';
   };
   try {
@@ -952,19 +952,19 @@ async function doExport() {
     if (files.length === 1) {
       downloadBlob(files[0].blob, files[0].name);
     } else {
-      $('#modal-title').textContent = 'Empacotando';
-      $('#modal-sub').textContent = `${files.length} folhas em um .zip`;
+      $('#modal-title').textContent = 'Packing';
+      $('#modal-sub').textContent = `${files.length} sheets in one .zip`;
       await new Promise((r) => setTimeout(r, 30));
       downloadBlob(await zipStore(files), `${name}-album.zip`);
     }
     const low = S.items.filter((it) => effDpi(it, assets.get(it.assetId)) < 180).length;
     toast(
-      `Pronto: ${plural(files.length, 'folha', 'folhas')} em 300 dpi.` +
-        (low ? ` Atenção: ${plural(low, 'imagem está', 'imagens estão')} com pouca resolução para o tamanho.` : '')
+      `Done: ${plural(files.length, 'sheet', 'sheets')} at 300 dpi.` +
+        (low ? ` Heads up: ${plural(low, 'image has', 'images have')} low resolution for its size.` : '')
     );
   } catch (err) {
     console.error(err);
-    toast(err.message || 'Falha ao exportar.', 'error');
+    toast(err.message || 'Export failed.', 'error');
   } finally {
     modal.hidden = true;
     exporting = false;
@@ -972,7 +972,7 @@ async function doExport() {
 }
 
 async function newAlbum() {
-  if (S.items.length && !confirm('Começar um álbum novo? As imagens e o layout atuais serão apagados deste navegador.')) return;
+  if (S.items.length && !confirm('Start a new album? The current images and layout will be removed from this browser.')) return;
   for (const a of assets.values()) URL.revokeObjectURL(a.previewUrl);
   assets.clear();
   const { format, cuts } = S;
@@ -989,7 +989,7 @@ async function newAlbum() {
   scheduleSave();
 }
 
-// ---------- início ----------
+// ---------- startup ----------
 async function boot() {
   wheel = createColorWheel($('#wheel'), {
     value: S.bg,
@@ -1010,9 +1010,9 @@ async function boot() {
       assets.set(r.id, { ...r, previewUrl: URL.createObjectURL(r.preview) });
     }
     S.items = S.items.filter((i) => assets.has(i.assetId));
-    if (S.items.length) toast(`Álbum restaurado · ${plural(S.items.length, 'imagem', 'imagens')}`);
+    if (S.items.length) toast(`Album restored · ${plural(S.items.length, 'image', 'images')}`);
   } catch (e) {
-    console.warn('Salvamento local indisponível', e);
+    console.warn('Local save unavailable', e);
   }
   wheel.setValue(S.bg);
   lastSnap = snapshot();
@@ -1021,5 +1021,5 @@ async function boot() {
 }
 boot();
 
-// ganchos para depuração e testes
+// hooks for debugging and tests
 window.vento = { S, assets, addFiles, doExport, fit, geo, select, renderSheets, sheetRects };

@@ -1,6 +1,6 @@
-// Leitura de imagens em alta resolução.
-// O arquivo original nunca é recomprimido: fica guardado como está e só é decodificado
-// na exportação. Na tela usamos uma prévia reduzida (lado maior de até 2400 px).
+// High-resolution image loading.
+// The original file is never recompressed: it is kept as-is and only decoded at
+// export. On screen we use a reduced preview (long edge up to 2400 px).
 const PREVIEW_MAX = 2400;
 
 export function loadImg(url) {
@@ -8,33 +8,33 @@ export function loadImg(url) {
     const img = new Image();
     img.decoding = 'async';
     img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error('formato não suportado por este navegador'));
+    img.onerror = () => reject(new Error('format not supported by this browser'));
     img.src = url;
   });
 }
 
 export function toBlob(canvas, type, quality) {
   return new Promise((resolve, reject) =>
-    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('o navegador não conseguiu gerar a imagem'))), type, quality)
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('the browser could not encode the image'))), type, quality)
   );
 }
 
-// Decodifica o arquivo original já com a orientação EXIF aplicada.
-// Devolve { src, close } — src pode ser ImageBitmap ou HTMLImageElement.
+// Decodes the original file with EXIF orientation applied.
+// Returns { src, close } — src is an ImageBitmap or an HTMLImageElement.
 export async function decodeOriginal(file, nw, nh) {
   try {
     const b = await createImageBitmap(file, { imageOrientation: 'from-image' });
     if (b.width === nw && b.height === nh) return { src: b, close: () => b.close() };
     b.close();
-  } catch { /* cai para o <img> */ }
+  } catch { /* fall back to <img> */ }
   const url = URL.createObjectURL(file);
   const img = await loadImg(url);
-  try { await img.decode(); } catch { /* já carregada */ }
+  try { await img.decode(); } catch { /* already loaded */ }
   return { src: img, close: () => URL.revokeObjectURL(url) };
 }
 
-// Reduz em etapas de 1/2 para manter a qualidade em reduções grandes
-// (ex.: foto de 9000 px desenhada em 1200 px).
+// Downscales in halving steps to keep quality on large reductions
+// (e.g. a 9000 px photo drawn at 1200 px).
 export function stepDown(src, sw, sh, tw, th) {
   let cur = src, cw = sw, ch = sh;
   while (cw / 2 >= tw * 1.25 && ch / 2 >= th * 1.25) {
@@ -60,7 +60,7 @@ export async function readImage(file) {
     URL.revokeObjectURL(url);
   }
   const nw = img.naturalWidth, nh = img.naturalHeight;
-  if (!nw || !nh) throw new Error('imagem vazia');
+  if (!nw || !nh) throw new Error('empty image');
   const preview = await makePreview(file, nw, nh);
   return { nw, nh, preview };
 }
@@ -80,7 +80,7 @@ async function makePreview(file, nw, nh) {
     step.release();
     let blob = await toBlob(c, 'image/webp', 0.88);
     if (blob.type !== 'image/webp') {
-      // Safari não codifica WebP: PNG preserva transparência, JPEG para o resto
+      // Safari can't encode WebP: PNG keeps transparency, JPEG for the rest
       blob = await toBlob(c, file.type === 'image/png' ? 'image/png' : 'image/jpeg', 0.88);
     }
     return blob;
@@ -92,6 +92,6 @@ async function makePreview(file, nw, nh) {
 
 export function fmtBytes(n) {
   if (n < 1024 * 1024) return `${Math.max(1, Math.round(n / 1024))} KB`;
-  if (n < 1024 ** 3) return `${(n / 1024 ** 2).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} MB`;
-  return `${(n / 1024 ** 3).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} GB`;
+  if (n < 1024 ** 3) return `${(n / 1024 ** 2).toLocaleString('en-US', { maximumFractionDigits: 1 })} MB`;
+  return `${(n / 1024 ** 3).toLocaleString('en-US', { maximumFractionDigits: 2 })} GB`;
 }

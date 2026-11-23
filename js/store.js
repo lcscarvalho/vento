@@ -1,5 +1,5 @@
-// Salvamento local (IndexedDB): o álbum sobrevive a recarregar a página.
-// Os arquivos originais ficam guardados no próprio navegador — nada sai do computador.
+// Local save (IndexedDB): the album survives a page reload.
+// The original files stay in the browser itself — nothing leaves the computer.
 const DB_NAME = 'vento';
 const DB_VERSION = 1;
 let dbp;

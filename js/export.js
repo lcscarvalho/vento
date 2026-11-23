@@ -1,6 +1,6 @@
-// Exportação em 300 dpi: cada folha vira um arquivo próprio, desenhado a partir dos
-// arquivos originais (não das prévias). Uma imagem que atravessa duas folhas aparece
-// cortada em cada uma, na posição exata — é o que facilita a impressão.
+// 300 dpi export: each sheet becomes its own file, drawn from the original files
+// (not the previews). An image that spans two sheets is cut into each one at its
+// exact position — which is what makes printing easy.
 import { decodeOriginal, stepDown, toBlob } from './images.js';
 
 const intersects = (a, r) => a.x < r.x + r.w && a.x + a.w > r.x && a.y < r.y + r.h && a.y + a.h > r.y;
@@ -14,14 +14,14 @@ export async function renderSheets({ sheets, items, assets, bg, dpi, format, nam
   const k = dpi / 25.4;
   const mime = format === 'png' ? 'image/png' : 'image/jpeg';
   const ext = format === 'png' ? 'png' : 'jpg';
-  const cache = new Map(); // assetId -> original decodificado (reaproveitado entre folhas vizinhas)
+  const cache = new Map(); // assetId -> decoded original (reused across neighbouring sheets)
   const out = [];
   try {
     for (let i = 0; i < sheets.length; i++) {
       const r = sheets[i];
       const { W, H } = sheetPixels(r.w, r.h, dpi);
       onProgress?.(i, sheets.length, W, H);
-      await new Promise((res) => setTimeout(res, 30)); // deixa a tela atualizar o progresso
+      await new Promise((res) => setTimeout(res, 30)); // let the screen paint the progress
 
       const need = items.filter((it) => assets.has(it.assetId) && intersects(it, r));
       for (const [id, d] of cache) {
@@ -33,7 +33,7 @@ export async function renderSheets({ sheets, items, assets, bg, dpi, format, nam
       const ctx = c.getContext('2d', { alpha: format === 'png' });
       if (!ctx || !canvasWorks(ctx, W, H)) {
         c.width = c.height = 0;
-        throw new Error(`A folha ${i + 1} (${W} × ${H} px) passa do limite de memória deste navegador. Tente no Chrome ou use folhas menores.`);
+        throw new Error(`Sheet ${i + 1} (${W} × ${H} px) exceeds this browser's memory limit. Try Chrome or use smaller sheets.`);
       }
       ctx.fillStyle = bg;
       ctx.fillRect(0, 0, W, H);
@@ -44,7 +44,7 @@ export async function renderSheets({ sheets, items, assets, bg, dpi, format, nam
         const a = assets.get(it.assetId);
         let d = cache.get(a.id);
         if (!d) { d = await decodeOriginal(a.file, a.nw, a.nh); cache.set(a.id, d); }
-        // object-fit: cover + ponto focal (fx, fy) — o mesmo cálculo da tela
+        // object-fit: cover + focal point (fx, fy) — same math as on screen
         const sc = Math.max(it.w / a.nw, it.h / a.nh); // mm por pixel do original
         const dw = a.nw * sc, dh = a.nh * sc;
         const ox = (it.w - dw) * it.fx, oy = (it.h - dh) * it.fy;
@@ -60,9 +60,9 @@ export async function renderSheets({ sheets, items, assets, bg, dpi, format, nam
       }
 
       let blob = await toBlob(c, mime, 0.95);
-      c.width = c.height = 0; // libera a memória da folha antes da próxima
+      c.width = c.height = 0; // free the sheet's memory before the next one
       blob = await embedDpi(blob, dpi, format);
-      out.push({ name: `${name}-folha-${String(i + 1).padStart(2, '0')}.${ext}`, blob, W, H });
+      out.push({ name: `${name}-sheet-${String(i + 1).padStart(2, '0')}.${ext}`, blob, W, H });
     }
   } finally {
     for (const d of cache.values()) d.close();
@@ -70,7 +70,7 @@ export async function renderSheets({ sheets, items, assets, bg, dpi, format, nam
   return out;
 }
 
-// Se o canvas não coube na memória, o navegador devolve um canvas "morto" sem avisar.
+// If the canvas did not fit in memory, the browser silently returns a "dead" canvas.
 function canvasWorks(ctx, W, H) {
   ctx.fillStyle = '#00FF00';
   ctx.fillRect(W - 1, H - 1, 1, 1);
@@ -78,7 +78,7 @@ function canvasWorks(ctx, W, H) {
   return px[1] === 255 && px[3] === 255;
 }
 
-// ---------- metadados de 300 dpi (para a gráfica abrir no tamanho certo) ----------
+// ---------- 300 dpi metadata (so the print shop opens it at the right size) ----------
 async function embedDpi(blob, dpi, format) {
   const bytes = new Uint8Array(await blob.arrayBuffer());
   const out = format === 'png' ? pngWithPhys(bytes, dpi) : jpegWithDensity(bytes, dpi);
@@ -89,7 +89,7 @@ export function jpegWithDensity(b, dpi) {
   if (b[0] !== 0xff || b[1] !== 0xd8) return b;
   const isJfif = b[2] === 0xff && b[3] === 0xe0 && b[6] === 0x4a && b[7] === 0x46 && b[8] === 0x49 && b[9] === 0x46 && b[10] === 0;
   if (isJfif) {
-    b[13] = 1; // unidade: pontos por polegada
+    b[13] = 1; // units: dots per inch
     b[14] = dpi >> 8; b[15] = dpi & 255;
     b[16] = dpi >> 8; b[17] = dpi & 255;
     return b;
@@ -133,7 +133,7 @@ export function pngWithPhys(b, dpi) {
   return out;
 }
 
-// ---------- ZIP sem compressão (as imagens já são comprimidas) ----------
+// ---------- uncompressed ZIP (the images are already compressed) ----------
 const CRC_TABLE = (() => {
   const t = new Uint32Array(256);
   for (let n = 0; n < 256; n++) {

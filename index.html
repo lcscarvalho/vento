@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vento · álbuns de foto para impressão</title>
-  <meta name="description" content="Monte álbuns de foto com imagens em alta resolução e baixe cada folha em 300 dpi, pronta para imprimir.">
+  <title>Vento · photo albums for print</title>
+  <meta name="description" content="Lay out photo albums with high-resolution images and download every sheet at 300 dpi, ready to print.">
   <meta name="theme-color" content="#E9E5D6">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -14,7 +14,7 @@
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
-  <!-- Ícones -->
+  <!-- Icons -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
     <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></symbol>
@@ -40,109 +40,109 @@
   <header class="topbar">
     <div class="brand" aria-label="Vento">
       <span class="brand-word">VENTO</span>
-      <span class="brand-script">álbum</span>
+      <span class="brand-script">album</span>
     </div>
-    <div class="brand-meta"><span class="hash">#</span> Álbuns para impressão <span class="meta-rule"></span> 300 dpi</div>
+    <div class="brand-meta"><span class="hash">#</span> Photo albums for print <span class="meta-rule"></span> 300 dpi</div>
     <div class="top-actions">
       <div class="group">
-        <button class="btn icon" id="undo" title="Desfazer (⌘Z)" aria-label="Desfazer"><svg class="ico"><use href="#i-undo"/></svg></button>
-        <button class="btn icon" id="redo" title="Refazer (⇧⌘Z)" aria-label="Refazer"><svg class="ico"><use href="#i-redo"/></svg></button>
+        <button class="btn icon" id="undo" title="Undo (⌘Z)" aria-label="Undo"><svg class="ico"><use href="#i-undo"/></svg></button>
+        <button class="btn icon" id="redo" title="Redo (⇧⌘Z)" aria-label="Redo"><svg class="ico"><use href="#i-redo"/></svg></button>
       </div>
       <div class="group zoom">
-        <button class="btn icon" id="zoom-out" title="Diminuir zoom (⌘−)" aria-label="Diminuir zoom"><svg class="ico"><use href="#i-minus"/></svg></button>
-        <button class="btn zoom-val" id="zoom-val" title="Tamanho real (100% = 1 cm na tela)">100%</button>
-        <button class="btn icon" id="zoom-in" title="Aumentar zoom (⌘+)" aria-label="Aumentar zoom"><svg class="ico"><use href="#i-plus"/></svg></button>
-        <button class="btn icon" id="zoom-fit" title="Ajustar à tela (⌘0)" aria-label="Ajustar à tela"><svg class="ico"><use href="#i-fit"/></svg></button>
+        <button class="btn icon" id="zoom-out" title="Zoom out (⌘−)" aria-label="Zoom out"><svg class="ico"><use href="#i-minus"/></svg></button>
+        <button class="btn zoom-val" id="zoom-val" title="Actual size (100% = 1 cm on screen)">100%</button>
+        <button class="btn icon" id="zoom-in" title="Zoom in (⌘+)" aria-label="Zoom in"><svg class="ico"><use href="#i-plus"/></svg></button>
+        <button class="btn icon" id="zoom-fit" title="Fit to screen (⌘0)" aria-label="Fit to screen"><svg class="ico"><use href="#i-fit"/></svg></button>
       </div>
-      <button class="btn accent" id="download-top"><svg class="ico"><use href="#i-download"/></svg> Baixar · 300 dpi</button>
+      <button class="btn accent" id="download-top"><svg class="ico"><use href="#i-download"/></svg> Download · 300 dpi</button>
     </div>
   </header>
 
   <div class="app">
     <aside class="panel">
       <section class="sec">
-        <h2 class="sec-h"><span class="num">#01</span><span class="title">Formato</span><span class="rule"></span></h2>
-        <label class="mini" for="preset">Tamanho da folha</label>
+        <h2 class="sec-h"><span class="num">#01</span><span class="title">Format</span><span class="rule"></span></h2>
+        <label class="mini" for="preset">Sheet size</label>
         <select id="preset" class="field"></select>
         <div class="dims">
-          <label><span class="mini">Largura</span><span class="unit-field"><input id="sheet-w" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
+          <label><span class="mini">Width</span><span class="unit-field"><input id="sheet-w" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
           <span class="times">×</span>
-          <label><span class="mini">Altura</span><span class="unit-field"><input id="sheet-h" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
+          <label><span class="mini">Height</span><span class="unit-field"><input id="sheet-h" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
         </div>
-        <span class="mini">Orientação</span>
+        <span class="mini">Orientation</span>
         <div class="seg" id="orient">
-          <button data-orient="v"><svg class="ico"><use href="#i-portrait"/></svg>Vertical</button>
-          <button data-orient="h"><svg class="ico"><use href="#i-landscape"/></svg>Horizontal</button>
+          <button data-orient="v"><svg class="ico"><use href="#i-portrait"/></svg>Portrait</button>
+          <button data-orient="h"><svg class="ico"><use href="#i-landscape"/></svg>Landscape</button>
         </div>
         <div class="two">
           <div>
-            <span class="mini">Folhas</span>
+            <span class="mini">Sheets</span>
             <div class="stepper">
-              <button id="count-dec" aria-label="Remover folha"><svg class="ico"><use href="#i-minus"/></svg></button>
+              <button id="count-dec" aria-label="Remove sheet"><svg class="ico"><use href="#i-minus"/></svg></button>
               <output id="count-val">2</output>
-              <button id="count-inc" aria-label="Adicionar folha"><svg class="ico"><use href="#i-plus"/></svg></button>
+              <button id="count-inc" aria-label="Add sheet"><svg class="ico"><use href="#i-plus"/></svg></button>
             </div>
           </div>
           <div>
-            <span class="mini">Disposição</span>
+            <span class="mini">Layout</span>
             <div class="seg" id="layout">
-              <button data-layout="row" title="Folhas lado a lado" aria-label="Lado a lado"><svg class="ico"><use href="#i-row"/></svg></button>
-              <button data-layout="col" title="Folhas empilhadas" aria-label="Empilhadas"><svg class="ico"><use href="#i-col"/></svg></button>
+              <button data-layout="row" title="Sheets side by side" aria-label="Side by side"><svg class="ico"><use href="#i-row"/></svg></button>
+              <button data-layout="col" title="Sheets stacked" aria-label="Stacked"><svg class="ico"><use href="#i-col"/></svg></button>
             </div>
           </div>
         </div>
-        <label class="check"><input type="checkbox" id="show-cuts"><span></span>Mostrar linhas de corte entre folhas</label>
+        <label class="check"><input type="checkbox" id="show-cuts"><span></span>Show cut lines between sheets</label>
       </section>
 
       <section class="sec">
-        <h2 class="sec-h"><span class="num">#02</span><span class="title">Fundo</span><span class="rule"></span></h2>
+        <h2 class="sec-h"><span class="num">#02</span><span class="title">Background</span><span class="rule"></span></h2>
         <div id="wheel"></div>
       </section>
 
       <section class="sec">
-        <h2 class="sec-h"><span class="num">#03</span><span class="title">Imagens</span><span class="rule"></span></h2>
-        <button class="btn primary wide" id="add-images"><svg class="ico"><use href="#i-image"/></svg> Adicionar imagens</button>
-        <p class="hint"><i>ou arraste e solte na mesa</i> — fotos em alta resolução são bem-vindas. Elas podem atravessar de uma folha para a outra.</p>
+        <h2 class="sec-h"><span class="num">#03</span><span class="title">Images</span><span class="rule"></span></h2>
+        <button class="btn primary wide" id="add-images"><svg class="ico"><use href="#i-image"/></svg> Add images</button>
+        <p class="hint"><i>or drag and drop onto the desk</i> — high-resolution photos are welcome. They can run across from one sheet to the next.</p>
         <p class="meta-line" id="img-count"></p>
       </section>
 
       <section class="sec" id="sel-section" hidden>
-        <h2 class="sec-h"><span class="num">#04</span><span class="title">Seleção</span><span class="rule"></span></h2>
+        <h2 class="sec-h"><span class="num">#04</span><span class="title">Selection</span><span class="rule"></span></h2>
         <p class="sel-name"><span id="sel-name"></span><span class="mini-meta" id="sel-px"></span></p>
         <div class="grid4">
-          <label><span class="mini">L</span><span class="unit-field"><input id="sel-w" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
-          <label><span class="mini">A</span><span class="unit-field"><input id="sel-h" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
+          <label><span class="mini">W</span><span class="unit-field"><input id="sel-w" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
+          <label><span class="mini">H</span><span class="unit-field"><input id="sel-h" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
           <label><span class="mini">X</span><span class="unit-field"><input id="sel-x" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
           <label><span class="mini">Y</span><span class="unit-field"><input id="sel-y" class="field" inputmode="decimal" autocomplete="off"><em>cm</em></span></label>
         </div>
         <button class="toggle" id="sel-lock" aria-pressed="true">
           <span class="toggle-ico"><svg class="ico"><use href="#i-lock"/></svg></span>
-          <span class="toggle-txt"><b>Manter proporção</b><small>Redimensiona sem distorcer</small></span>
+          <span class="toggle-txt"><b>Keep aspect ratio</b><small>Resizes without distortion</small></span>
           <span class="switch"></span>
         </button>
         <div class="dpi-line" id="sel-dpi"></div>
         <div class="actions">
-          <button class="btn sm" id="sel-crop"><svg class="ico"><use href="#i-crop"/></svg>Enquadrar</button>
-          <button class="btn sm" id="sel-fill"><svg class="ico"><use href="#i-fill"/></svg>Preencher folha</button>
-          <button class="btn sm" id="sel-dup"><svg class="ico"><use href="#i-copy"/></svg>Duplicar</button>
-          <button class="btn sm danger" id="sel-del"><svg class="ico"><use href="#i-trash"/></svg>Excluir</button>
+          <button class="btn sm" id="sel-crop"><svg class="ico"><use href="#i-crop"/></svg>Reframe</button>
+          <button class="btn sm" id="sel-fill"><svg class="ico"><use href="#i-fill"/></svg>Fill sheet</button>
+          <button class="btn sm" id="sel-dup"><svg class="ico"><use href="#i-copy"/></svg>Duplicate</button>
+          <button class="btn sm danger" id="sel-del"><svg class="ico"><use href="#i-trash"/></svg>Delete</button>
         </div>
       </section>
 
       <section class="sec">
-        <h2 class="sec-h"><span class="num" id="export-num">#04</span><span class="title">Exportar</span><span class="rule"></span></h2>
-        <span class="mini">Arquivo</span>
+        <h2 class="sec-h"><span class="num" id="export-num">#04</span><span class="title">Export</span><span class="rule"></span></h2>
+        <span class="mini">File type</span>
         <div class="seg" id="format">
-          <button data-format="jpg">JPG · gráfica</button>
-          <button data-format="png">PNG · sem perda</button>
+          <button data-format="jpg">JPG · print</button>
+          <button data-format="png">PNG · lossless</button>
         </div>
         <p class="meta-line" id="export-info"></p>
-        <button class="btn accent wide" id="download"><svg class="ico"><use href="#i-download"/></svg> Baixar em 300 dpi</button>
-        <button class="link" id="new-album">Começar um álbum novo</button>
+        <button class="btn accent wide" id="download"><svg class="ico"><use href="#i-download"/></svg> Download at 300 dpi</button>
+        <button class="link" id="new-album">Start a new album</button>
       </section>
 
       <section class="sec keys">
-        <p><kbd>Delete</kbd> exclui · <kbd>⌘D</kbd> duplica · <kbd>⌘Z</kbd> desfaz · setas movem 1 mm (<kbd>⇧</kbd> 10 mm) · <kbd>⇧</kbd> ao redimensionar inverte a trava · <kbd>⌥</kbd> desliga o ímã · <kbd>⌘</kbd> + rolagem dá zoom · duplo clique enquadra</p>
+        <p><kbd>Delete</kbd> removes · <kbd>⌘D</kbd> duplicates · <kbd>⌘Z</kbd> undoes · arrows nudge 1 mm (<kbd>⇧</kbd> 10 mm) · <kbd>⇧</kbd> while resizing flips the lock · <kbd>⌥</kbd> turns off snapping · <kbd>⌘</kbd> + scroll zooms · double-click reframes</p>
       </section>
     </aside>
 
@@ -157,19 +157,19 @@
             <div id="labels" class="layer"></div>
             <div id="guides" class="layer"></div>
             <div id="overlay" class="layer"></div>
-            <button id="add-sheet" class="add-sheet" title="Adicionar folha"><span>+ Folha</span></button>
+            <button id="add-sheet" class="add-sheet" title="Add sheet"><span>+ Sheet</span></button>
           </div>
         </div>
       </main>
       <div id="empty">
         <div class="empty-in">
           <span class="empty-hash">#</span>
-          <div class="empty-big">Solte suas<br>fotos aqui</div>
-          <div class="empty-script">ou clique em adicionar imagens</div>
-          <div class="empty-meta"><span>JPG · PNG · WEBP</span><span class="meta-rule"></span><span>alta resolução</span></div>
+          <div class="empty-big">Drop your<br>photos here</div>
+          <div class="empty-script">or click add images</div>
+          <div class="empty-meta"><span>JPG · PNG · WEBP</span><span class="meta-rule"></span><span>high resolution</span></div>
         </div>
       </div>
-      <div class="drop-hint"><span>Solte para adicionar</span></div>
+      <div class="drop-hint"><span>Drop to add</span></div>
     </div>
   </div>
 
@@ -177,9 +177,9 @@
   <div id="toast" role="status" aria-live="polite"></div>
   <div id="modal" hidden>
     <div class="modal-card">
-      <span class="mini">Exportando · 300 dpi</span>
-      <div class="modal-big" id="modal-title">Folha 1 de 2</div>
-      <div class="modal-script">seu álbum está saindo do forno</div>
+      <span class="mini">Exporting · 300 dpi</span>
+      <div class="modal-big" id="modal-title">Sheet 1 of 2</div>
+      <div class="modal-script">your album is fresh out of the oven</div>
       <div class="bar"><span id="modal-bar"></span></div>
       <p class="meta-line" id="modal-sub"></p>
     </div>

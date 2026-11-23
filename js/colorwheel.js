@@ -1,4 +1,4 @@
-// Roda de cores HSV: matiz no ângulo, saturação no raio, brilho no controle deslizante.
+// HSV colour wheel: hue on the angle, saturation on the radius, brightness on the slider.
 const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 
 export function hexToRgb(hex) {
@@ -37,8 +37,8 @@ export function createColorWheel(root, { value = '#FFFFFF', swatches = [], onInp
   root.classList.add('cw');
   root.innerHTML = `
     <div class="cw-disc"><canvas></canvas><span class="cw-marker"></span></div>
-    <label class="cw-row"><span class="mini">Brilho</span><input class="cw-value" type="range" min="0" max="100" step="1" aria-label="Brilho"></label>
-    <div class="cw-row cw-hexrow"><span class="cw-chip"></span><input class="cw-hex field" type="text" spellcheck="false" maxlength="7" aria-label="Cor em hexadecimal"></div>
+    <label class="cw-row"><span class="mini">Brightness</span><input class="cw-value" type="range" min="0" max="100" step="1" aria-label="Brightness"></label>
+    <div class="cw-row cw-hexrow"><span class="cw-chip"></span><input class="cw-hex field" type="text" spellcheck="false" maxlength="7" aria-label="Hex colour"></div>
     <div class="cw-swatches">${swatches
       .map((s) => {
         const light = luminance(hexToRgb(s.hex)) > 0.6;
@@ -105,7 +105,7 @@ export function createColorWheel(root, { value = '#FFFFFF', swatches = [], onInp
     if (!rgb) return false;
     hex = rgbToHex(rgb);
     const next = rgbToHsv(...rgb);
-    if (next.s === 0) next.h = hsv.h; // preserva o matiz em cinzas
+    if (next.s === 0) next.h = hsv.h; // keep the hue on greys
     hsv = next;
     sync(fire === 'typing');
     if (fire) onInput(hex);
