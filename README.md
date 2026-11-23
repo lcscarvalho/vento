@@ -2,7 +2,7 @@
 
 A web app for laying out photo albums and downloading every sheet at **300 dpi**, ready for the print shop.
 
-**Open it:** https://lcscarvalho.github.io/vento/
+**Open it:** https://vento.app
 
 ## What it does
 
