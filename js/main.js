@@ -1,8 +1,8 @@
-import { createColorWheel } from './colorwheel.js';
-import { readImage, fmtBytes, previewSize } from './images.js';
-import { createBook } from './book.js';
-import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js';
-import * as db from './store.js';
+import { createColorWheel } from './colorwheel.js?v=202611230108';
+import { readImage, fmtBytes, previewSize } from './images.js?v=202611230108';
+import { createBook } from './book.js?v=202611230108';
+import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611230108';
+import * as db from './store.js?v=202611230108';
 
 // All internal measurements are in millimetres. On screen: px = mm × scale.
 const DPI = 300;
@@ -1078,6 +1078,9 @@ async function boot() {
   fit();
 }
 boot();
+
+// which build is running (helps tell a stale cached copy from the current one)
+$('#build').textContent = new URL(import.meta.url).searchParams.get('v') || 'dev';
 
 // hooks for debugging and tests
 window.vento = { S, assets, addFiles, doExport, fit, geo, select, renderSheets, sheetRects, openPreview, book };

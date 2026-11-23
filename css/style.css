@@ -188,6 +188,7 @@ select.field {
 #download { margin-top: 12px; }
 
 .keys p { margin: 0; font-size: 11px; line-height: 1.9; color: var(--ink); opacity: .85; }
+.keys .build { margin-bottom: 6px; font: 700 9px var(--ui); letter-spacing: .12em; text-transform: uppercase; color: var(--coral); opacity: .8; }
 kbd { font: 700 10px var(--ui); border: 1.2px solid var(--coral); border-radius: 2px; padding: 0 4px; color: var(--coral); }
 
 /* ---------- Colour wheel ---------- */

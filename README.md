@@ -41,3 +41,13 @@ python3 -m http.server 8000
 ```
 
 then open http://localhost:8000.
+
+### Releasing
+
+GitHub Pages caches files for 10 minutes, and a browser can end up mixing an old cached script with new HTML. Before committing changes to `css/` or `js/`, stamp a new build version on every reference:
+
+```bash
+tools/stamp-version.sh
+```
+
+The running build is shown at the bottom of the side panel.
