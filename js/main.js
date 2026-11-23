@@ -10,9 +10,9 @@ const PAD = 160;                 // desk margin around the sheets (px)
 const MM_PX = 96 / 25.4;         // 100% zoom = actual size
 const BRAND = [
   { name: 'White', hex: '#FFFFFF' },
-  { name: 'Oat Cream', hex: '#E9E5D6' },
-  { name: 'Coffee Blue', hex: '#2589D8' },
-  { name: 'Tangerine', hex: '#FF783D' },
+  { name: 'Butter Cream', hex: '#F5E8CC' },
+  { name: 'Coral Orange', hex: '#F34E3D' },
+  { name: 'Galactic Purple', hex: '#55263D' },
 ];
 const PRESETS = [
   ['10x15', 100, 150, '10 × 15 cm'],

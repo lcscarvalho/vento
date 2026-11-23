@@ -42,7 +42,7 @@ export function createColorWheel(root, { value = '#FFFFFF', swatches = [], onInp
     <div class="cw-swatches">${swatches
       .map((s) => {
         const light = luminance(hexToRgb(s.hex)) > 0.6;
-        return `<button type="button" class="cw-sw" data-hex="${s.hex}" title="${s.name} · ${s.hex}" style="--c:${s.hex};--t:${light ? '#123A5E' : '#fff'}"><b>${s.name}</b><small>${s.hex}</small></button>`;
+        return `<button type="button" class="cw-sw" data-hex="${s.hex}" title="${s.name} · ${s.hex}" style="--c:${s.hex};--t:${light ? '#55263D' : '#fff'}"><b>${s.name}</b><small>${s.hex}</small></button>`;
       })
       .join('')}</div>`;
 
