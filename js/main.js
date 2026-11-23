@@ -1,8 +1,8 @@
-import { createColorWheel } from './colorwheel.js?v=202611230136';
-import { readImage, fmtBytes, previewSize } from './images.js?v=202611230136';
-import { createBook } from './book.js?v=202611230136';
-import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611230136';
-import * as db from './store.js?v=202611230136';
+import { createColorWheel } from './colorwheel.js?v=202611230154';
+import { readImage, fmtBytes, previewSize } from './images.js?v=202611230154';
+import { createBook } from './book.js?v=202611230154';
+import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611230154';
+import * as db from './store.js?v=202611230154';
 
 // All internal measurements are in millimetres. On screen: px = mm × scale.
 const DPI = 300;

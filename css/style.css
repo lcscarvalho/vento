@@ -49,7 +49,7 @@ button { font: inherit; color: inherit; }
   border-top: 2px solid var(--coral);
 }
 /* logo: Shrikhand wordmark + a small purple "album" sticker */
-.brand { position: relative; display: flex; align-items: center; flex: none; padding-right: 40px; }
+.brand { position: relative; display: flex; align-items: center; flex: none; padding-right: 26px; }
 .brand-word {
   font-family: var(--script); font-size: 40px; line-height: 1;
   color: var(--coral); letter-spacing: .005em;
@@ -63,14 +63,8 @@ button { font: inherit; color: inherit; }
   transform: rotate(-8deg);
   white-space: nowrap; pointer-events: none;
 }
-.brand-meta {
-  display: flex; align-items: center; gap: 10px;
-  font: 700 10px var(--ui); letter-spacing: .12em; text-transform: uppercase; color: var(--coral);
-  flex: 1; min-width: 0; white-space: nowrap;
-}
-.hash { color: var(--purple); font-size: 15px; letter-spacing: 0; }
 .meta-rule { display: inline-block; height: 1.5px; background: var(--coral); flex: 0 1 90px; min-width: 24px; }
-.top-actions { display: flex; align-items: center; gap: 14px; }
+.top-actions { display: flex; align-items: center; gap: 14px; margin-left: auto; }
 .group { display: flex; gap: 6px; }
 .zoom-val { min-width: 64px; padding: 0 8px; font-variant-numeric: tabular-nums; }
 
@@ -353,16 +347,9 @@ body.cropping .item.selected { cursor: grab; }
 .bar { height: 10px; border: 1.5px solid var(--coral); border-radius: 2px; margin-top: 18px; overflow: hidden; }
 .bar span { display: block; height: 100%; width: 0; background: var(--coral); transition: width .25s; }
 
-/* ---------- Medium screens ---------- */
-@media (max-width: 1180px) {
-  .brand-meta { display: none; }
-  .top-actions { margin-left: auto; }
-}
-
 /* ---------- Narrow screens ---------- */
 @media (max-width: 860px) {
   :root { --top-h: 60px; }
-  .brand-meta { display: none; }
   .topbar { gap: 12px; padding: 0 12px; }
   .brand-word { font-size: 32px; }
   .brand-script { font-size: 8px; bottom: 2px; }
