@@ -1,7 +1,7 @@
 // 300 dpi export: each sheet becomes its own file, drawn from the original files
 // (not the previews). An image that spans two sheets is cut into each one at its
 // exact position — which is what makes printing easy.
-import { decodeOriginal, stepDown, toBlob } from './images.js?v=202611230155';
+import { decodeOriginal, stepDown, toBlob } from './images.js?v=202611232200';
 
 const intersects = (a, r) => a.x < r.x + r.w && a.x + a.w > r.x && a.y < r.y + r.h && a.y + a.h > r.y;
 

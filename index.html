@@ -3,15 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Vento Zine · photo zines for print</title>
+  <title>Vento · photo zines for print</title>
   <meta name="description" content="Lay out photo zines with high-resolution images and download every sheet at 300 dpi, ready to print.">
   <meta name="theme-color" content="#F5E8CC">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&family=Shrikhand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=202611230155">
-  <script type="module" src="js/main.js?v=202611230155"></script>
+  <link rel="stylesheet" href="css/style.css?v=202611232200">
+  <script type="module" src="js/main.js?v=202611232200"></script>
 </head>
 <body>
   <!-- Icons -->
@@ -44,9 +44,8 @@
   </svg>
 
   <header class="topbar">
-    <div class="brand" aria-label="Vento Zine">
+    <div class="brand" aria-label="Vento">
       <span class="brand-word">Vento</span>
-      <span class="brand-script">zine</span>
     </div>
     <div class="top-actions">
       <div class="group">
@@ -110,6 +109,10 @@
         <button class="btn primary wide" id="add-images"><svg class="ico"><use href="#i-image"/></svg> Add images</button>
         <p class="hint"><i>or drag and drop onto the desk</i> — high-resolution photos are welcome. They can run across from one sheet to the next.</p>
         <p class="meta-line" id="img-count"></p>
+        <div class="privacy">
+          <span class="toggle-ico"><svg class="ico"><use href="#i-lock"/></svg></span>
+          <p><b>Private by design</b>Your photos are never uploaded. They stay in this browser, on this device, and are only read to build your sheets.</p>
+        </div>
       </section>
 
       <section class="sec" id="sel-section" hidden>
@@ -174,6 +177,7 @@
           <div class="empty-big">Drop your<br>photos here</div>
           <div class="empty-script">or click add images</div>
           <div class="empty-meta"><span>JPG · PNG · WEBP</span><span class="meta-rule"></span><span>high resolution</span></div>
+          <div class="empty-private"><svg class="ico"><use href="#i-lock"/></svg>Never uploaded · stays in your browser</div>
         </div>
       </div>
       <div class="drop-hint"><span>Drop to add</span></div>
