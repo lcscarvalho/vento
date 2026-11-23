@@ -1,5 +1,6 @@
 import { createColorWheel } from './colorwheel.js';
-import { readImage, fmtBytes } from './images.js';
+import { readImage, fmtBytes, previewSize } from './images.js';
+import { createBook } from './book.js';
 import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js';
 import * as db from './store.js';
 
@@ -24,7 +25,7 @@ const PRESETS = [
   ['a3', 297, 420, 'A3 · 29,7 × 42 cm'],
   ['10x50', 100, 500, '10 × 50 cm'],
 ];
-const DEFAULTS = { w: 200, h: 300, count: 2, layout: 'row', bg: '#FFFFFF', cuts: true, format: 'jpg', items: [] };
+const DEFAULTS = { w: 200, h: 300, count: 2, layout: 'row', bg: '#FFFFFF', cuts: true, format: 'jpg', cover: 'plain', items: [] };
 const CORNERS = ['nw', 'ne', 'se', 'sw'];
 const ALL_HANDLES = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'];
 
@@ -117,8 +118,8 @@ let saveTimer, saveWarned = false;
 function scheduleSave() {
   clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
-    const { w, h, count, layout, bg, cuts, format, items } = S;
-    db.saveProject({ v: 1, w, h, count, layout, bg, cuts, format, items }).catch(warnSave);
+    const { w, h, count, layout, bg, cuts, format, cover, items } = S;
+    db.saveProject({ v: 1, w, h, count, layout, bg, cuts, format, cover, items }).catch(warnSave);
   }, 400);
 }
 function warnSave(e) {
@@ -884,11 +885,13 @@ function bindPanel() {
   $('#zoom-val').addEventListener('click', () => setScale(MM_PX));
   $('#download').addEventListener('click', doExport);
   $('#download-top').addEventListener('click', doExport);
+  $('#preview-top').addEventListener('click', () => openPreview());
   $('#new-album').addEventListener('click', newAlbum);
 }
 
 // ---------- keyboard ----------
 document.addEventListener('keydown', (e) => {
+  if (book.isOpen) return book.key(e);
   const t = e.target;
   if (t.closest?.('input, select, textarea')) {
     if (e.key === 'Enter' && t.tagName === 'INPUT') t.blur();
@@ -903,6 +906,7 @@ document.addEventListener('keydown', (e) => {
   if (mod && k === '-') { e.preventDefault(); return setScale(scale / 1.25); }
   if (mod && k === 'o') { e.preventDefault(); return fileInput.click(); }
   if (mod && k === 's') { e.preventDefault(); return doExport(); }
+  if (!mod && k === 'p') { e.preventDefault(); return openPreview(); }
   const it = getSel();
   if (!it) return;
   if (mod && k === 'd') { e.preventDefault(); return act('dup'); }
@@ -929,6 +933,60 @@ document.addEventListener('keydown', (e) => {
     commit();
   }
 });
+
+// ---------- book preview ----------
+const book = createBook($('#book-view'), {
+  onCoverChange: (cover) => {
+    S.cover = cover;
+    scheduleSave();
+    openPreview(true);
+  },
+});
+
+// Each sheet rendered from the light previews (not the originals) at about screen
+// resolution. Cached until the album changes.
+let pv = { key: '', urls: [] };
+async function sheetPreviews() {
+  const key = snapshot();
+  if (pv.key === key) return pv.urls;
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const target = Math.min(2000, Math.round(Math.max(window.innerWidth, window.innerHeight) * dpr * 0.75));
+  const dpi = target / (Math.max(S.w, S.h) / 25.4);
+  const light = new Map();
+  for (const [id, a] of assets) {
+    const { w, h } = previewSize(a.nw, a.nh);
+    light.set(id, { id, file: a.preview, nw: w, nh: h });
+  }
+  const files = await renderSheets({
+    sheets: sheetRects(), items: S.items, assets: light, bg: S.bg, dpi, format: 'jpg', name: 'preview',
+    embed: false, quality: 0.86,
+    onProgress: (i, n) => book.progress(`Sheet ${i + 1} of ${n}`),
+  });
+  for (const u of pv.urls) URL.revokeObjectURL(u);
+  pv = { key, urls: files.map((f) => URL.createObjectURL(f.blob)) };
+  return pv.urls;
+}
+
+let previewing = false;
+async function openPreview(keepPosition = false) {
+  if (previewing || exporting) return;
+  previewing = true;
+  select(null);
+  book.show();
+  try {
+    const urls = await sheetPreviews();
+    if (!book.isOpen) return;
+    book.setup({
+      urls, w: S.w, h: S.h, binding: S.layout === 'row' ? 'left' : 'top', bg: S.bg, cover: S.cover, keepPosition,
+    });
+  } catch (err) {
+    console.error(err);
+    book.hide();
+    toast(err.message || 'Could not build the preview.', 'error');
+  } finally {
+    previewing = false;
+  }
+}
 
 // ---------- export ----------
 async function doExport() {
@@ -1022,4 +1080,4 @@ async function boot() {
 boot();
 
 // hooks for debugging and tests
-window.vento = { S, assets, addFiles, doExport, fit, geo, select, renderSheets, sheetRects };
+window.vento = { S, assets, addFiles, doExport, fit, geo, select, renderSheets, sheetRects, openPreview, book };

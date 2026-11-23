@@ -3,6 +3,12 @@
 // export. On screen we use a reduced preview (long edge up to 2400 px).
 const PREVIEW_MAX = 2400;
 
+// Pixel size of the on-screen preview generated for an original of nw × nh.
+export function previewSize(nw, nh) {
+  const s = Math.min(1, PREVIEW_MAX / Math.max(nw, nh));
+  return { w: Math.max(1, Math.round(nw * s)), h: Math.max(1, Math.round(nh * s)) };
+}
+
 export function loadImg(url) {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -66,8 +72,7 @@ export async function readImage(file) {
 }
 
 async function makePreview(file, nw, nh) {
-  const s = Math.min(1, PREVIEW_MAX / Math.max(nw, nh));
-  const pw = Math.max(1, Math.round(nw * s)), ph = Math.max(1, Math.round(nh * s));
+  const { w: pw, h: ph } = previewSize(nw, nh);
   const d = await decodeOriginal(file, nw, nh);
   const c = document.createElement('canvas');
   try {

@@ -10,7 +10,8 @@ export function sheetPixels(wmm, hmm, dpi) {
   return { W: Math.round(wmm * k), H: Math.round(hmm * k) };
 }
 
-export async function renderSheets({ sheets, items, assets, bg, dpi, format, name, onProgress }) {
+// `embed: false` + a lower `quality` is used for the book preview (fast, light files).
+export async function renderSheets({ sheets, items, assets, bg, dpi, format, name, onProgress, embed = true, quality = 0.95 }) {
   const k = dpi / 25.4;
   const mime = format === 'png' ? 'image/png' : 'image/jpeg';
   const ext = format === 'png' ? 'png' : 'jpg';
@@ -59,9 +60,9 @@ export async function renderSheets({ sheets, items, assets, bg, dpi, format, nam
         step.release();
       }
 
-      let blob = await toBlob(c, mime, 0.95);
+      let blob = await toBlob(c, mime, quality);
       c.width = c.height = 0; // free the sheet's memory before the next one
-      blob = await embedDpi(blob, dpi, format);
+      if (embed) blob = await embedDpi(blob, dpi, format);
       out.push({ name: `${name}-sheet-${String(i + 1).padStart(2, '0')}.${ext}`, blob, W, H });
     }
   } finally {
