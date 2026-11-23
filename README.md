@@ -1,6 +1,6 @@
-# Vento
+# Vento Zine
 
-A web app for laying out photo albums and downloading every sheet at **300 dpi**, ready for the print shop.
+A web app for laying out photo zines and downloading every sheet at **300 dpi**, ready for the print shop.
 
 **Open it:** https://vento.app
 
@@ -12,9 +12,9 @@ A web app for laying out photo albums and downloading every sheet at **300 dpi**
 - **High-resolution images** — the original file is never recompressed. On screen the app uses a light preview; on export it draws from the original.
 - **Keep aspect ratio** or **free aspect ratio**: with the lock off, the frame crops the photo (no distortion) and a double-click lets you reframe it.
 - **Effective dpi** of each image at its current size, so you know whether it will print sharp.
-- **Book preview** — see the album closed and flip through it page by page. Side-by-side sheets bind on the left like a book; stacked sheets flip up like a calendar. Choose a plain hard cover (sheets 1–2, 3–4… open as spreads) or print sheet 1 as the cover.
+- **Book preview** — see the zine closed and flip through it page by page. Side-by-side sheets bind on the left like a book; stacked sheets flip up like a calendar. Choose a plain hard cover (sheets 1–2, 3–4… open as spreads) or print sheet 1 as the cover.
 - **Download** as JPG (quality 95) or PNG, with 300 dpi written into the file. More than one sheet comes in a `.zip`.
-- The album is saved in your own browser (IndexedDB) — nothing is sent to any server.
+- The zine is saved in your own browser (IndexedDB) — nothing is sent to any server.
 
 ## Shortcuts
 

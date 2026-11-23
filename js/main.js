@@ -1,8 +1,8 @@
-import { createColorWheel } from './colorwheel.js?v=202611230154';
-import { readImage, fmtBytes, previewSize } from './images.js?v=202611230154';
-import { createBook } from './book.js?v=202611230154';
-import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611230154';
-import * as db from './store.js?v=202611230154';
+import { createColorWheel } from './colorwheel.js?v=202611230155';
+import { readImage, fmtBytes, previewSize } from './images.js?v=202611230155';
+import { createBook } from './book.js?v=202611230155';
+import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611230155';
+import * as db from './store.js?v=202611230155';
 
 // All internal measurements are in millimetres. On screen: px = mm × scale.
 const DPI = 300;
@@ -120,7 +120,7 @@ function warnSave(e) {
   console.warn(e);
   if (saveWarned) return;
   saveWarned = true;
-  toast('Could not save the album in this browser (storage full?). Download your sheets before closing.', 'error');
+  toast('Could not save the zine in this browser (storage full?). Download your sheets before closing.', 'error');
 }
 
 // ---------- DOM ----------
@@ -1007,7 +1007,7 @@ async function doExport() {
       $('#modal-title').textContent = 'Packing';
       $('#modal-sub').textContent = `${files.length} sheets in one .zip`;
       await new Promise((r) => setTimeout(r, 30));
-      downloadBlob(await zipStore(files), `${name}-album.zip`);
+      downloadBlob(await zipStore(files), `${name}-zine.zip`);
     }
     const low = S.items.filter((it) => effDpi(it, assets.get(it.assetId)) < 180).length;
     toast(
@@ -1024,7 +1024,7 @@ async function doExport() {
 }
 
 async function newAlbum() {
-  if (S.items.length && !confirm('Start a new album? The current images and layout will be removed from this browser.')) return;
+  if (S.items.length && !confirm('Start a new zine? The current images and layout will be removed from this browser.')) return;
   for (const a of assets.values()) URL.revokeObjectURL(a.previewUrl);
   assets.clear();
   const { format, cuts } = S;
@@ -1061,7 +1061,7 @@ async function boot() {
       assets.set(r.id, { ...r, previewUrl: URL.createObjectURL(r.preview) });
     }
     S.items = S.items.filter((i) => assets.has(i.assetId));
-    if (S.items.length) toast(`Album restored · ${plural(S.items.length, 'image', 'images')}`);
+    if (S.items.length) toast(`Zine restored · ${plural(S.items.length, 'image', 'images')}`);
   } catch (e) {
     console.warn('Local save unavailable', e);
   }

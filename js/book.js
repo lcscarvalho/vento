@@ -12,7 +12,7 @@ const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
 export function createBook(root, { onCoverChange = () => {}, onClose = () => {} } = {}) {
   root.innerHTML = `
     <div class="bv-bar">
-      <div class="bv-title"><span class="mini">Preview</span><span class="bv-name">Your <i>album</i></span></div>
+      <div class="bv-title"><span class="mini">Preview</span><span class="bv-name">Your <i>zine</i></span></div>
       <div class="bv-cover-wrap">
         <span class="mini">Cover</span>
         <div class="seg bv-cover">
