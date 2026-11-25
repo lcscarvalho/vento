@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&family=Shrikhand&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=202611232201">
-  <script type="module" src="js/main.js?v=202611232201"></script>
+  <link rel="stylesheet" href="css/style.css?v=202611252356">
+  <script type="module" src="js/main.js?v=202611252356"></script>
 </head>
 <body>
   <!-- Icons -->
@@ -40,6 +40,7 @@
     <symbol id="i-prev" viewBox="0 0 24 24"><path d="m15 5-7 7 7 7"/></symbol>
     <symbol id="i-next" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7"/></symbol>
     <symbol id="i-first" viewBox="0 0 24 24"><path d="m17 5-7 7 7 7"/><path d="M6 5v14"/></symbol>
+    <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5Z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><path d="M8 3c-.6.8-.6 1.7 0 2.5M12 3c-.6.8-.6 1.7 0 2.5"/></symbol>
     <symbol id="i-last" viewBox="0 0 24 24"><path d="m7 5 7 7-7 7"/><path d="M18 5v14"/></symbol>
   </svg>
 
@@ -194,6 +195,30 @@
       <div class="modal-script">your zine is fresh off the press</div>
       <div class="bar"><span id="modal-bar"></span></div>
       <p class="meta-line" id="modal-sub"></p>
+    </div>
+  </div>
+  <div id="thanks" hidden role="dialog" aria-modal="true" aria-labelledby="thanks-title">
+    <div class="modal-card thanks-card">
+      <button class="btn icon thanks-x" id="thanks-close" aria-label="Close"><svg class="ico"><use href="#i-close"/></svg></button>
+      <span class="mini">Downloaded · 300 dpi</span>
+      <div class="modal-big" id="thanks-title">Liked Vento?</div>
+      <div class="modal-script">buy me a coffee</div>
+      <p class="thanks-txt">Vento is free, with no ads and no sign-up. If it helped with your zine, a coffee keeps it going.</p>
+      <div class="seg pay-tabs" id="pay-tabs">
+        <button data-pay="pix" class="on">PIX · Brasil</button>
+        <button data-pay="paypal">PayPal · anywhere</button>
+      </div>
+      <div class="thanks-pay">
+        <img class="pay-qr" id="pay-qr" src="img/pix-qr.svg" width="132" height="132" alt="PIX QR code">
+        <div class="pay-opts" data-for="pix">
+          <p>Scan with your bank app, or copy the code and paste it in <b>PIX copia e cola</b>.</p>
+          <button class="btn primary" id="pix-copy"><svg class="ico"><use href="#i-copy"/></svg> Copy PIX code</button>
+        </div>
+        <div class="pay-opts" data-for="paypal" hidden>
+          <p>Scan with your phone camera or the PayPal app, and pick any amount.</p>
+        </div>
+      </div>
+      <button class="link" id="thanks-later">Not now</button>
     </div>
   </div>
 </body>

@@ -345,6 +345,16 @@ body.cropping .item.selected { cursor: grab; }
 .modal-card .mini { margin-top: 0; }
 .modal-big { font: 400 46px/.95 var(--display); color: var(--coral); text-transform: uppercase; }
 .modal-script { font: italic 700 18px var(--script); color: var(--purple); margin-top: 4px; }
+#thanks { position: fixed; inset: 0; z-index: 45; display: grid; place-items: center; background: rgba(245, 232, 204, .82); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+.thanks-card { position: relative; }
+.thanks-x { position: absolute; top: 12px; right: 12px; border-color: transparent; background: none; }
+.thanks-txt { margin: 12px 0 0; font-size: 13px; }
+.pay-tabs { margin-top: 16px; }
+.thanks-pay { display: flex; gap: 16px; align-items: center; margin-top: 12px; }
+.pay-qr { flex: none; width: 132px; height: 132px; border: 2px solid var(--purple); border-radius: 3px; background: var(--white); }
+.pay-opts { display: flex; flex-direction: column; gap: 10px; flex: 1; min-width: 0; }
+.pay-opts p { margin: 0; font-size: 12px; }
+.pay-opts .btn { justify-content: center; }
 .bar { height: 10px; border: 1.5px solid var(--coral); border-radius: 2px; margin-top: 18px; overflow: hidden; }
 .bar span { display: block; height: 100%; width: 0; background: var(--coral); transition: width .25s; }
 

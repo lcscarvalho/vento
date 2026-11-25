@@ -1,8 +1,8 @@
-import { createColorWheel } from './colorwheel.js?v=202611232201';
-import { readImage, fmtBytes, previewSize } from './images.js?v=202611232201';
-import { createBook } from './book.js?v=202611232201';
-import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611232201';
-import * as db from './store.js?v=202611232201';
+import { createColorWheel } from './colorwheel.js?v=202611252356';
+import { readImage, fmtBytes, previewSize } from './images.js?v=202611252356';
+import { createBook } from './book.js?v=202611252356';
+import { renderSheets, sheetPixels, zipStore, downloadBlob } from './export.js?v=202611252356';
+import * as db from './store.js?v=202611252356';
 
 // All internal measurements are in millimetres. On screen: px = mm × scale.
 const DPI = 300;
@@ -881,11 +881,16 @@ function bindPanel() {
   $('#download-top').addEventListener('click', doExport);
   $('#preview-top').addEventListener('click', () => openPreview());
   $('#new-album').addEventListener('click', newAlbum);
+  bindThanks();
 }
 
 // ---------- keyboard ----------
 document.addEventListener('keydown', (e) => {
   if (book.isOpen) return book.key(e);
+  if (!$('#thanks').hidden) {
+    if (e.key === 'Escape') hideThanks();
+    return;
+  }
   const t = e.target;
   if (t.closest?.('input, select, textarea')) {
     if (e.key === 'Enter' && t.tagName === 'INPUT') t.blur();
@@ -991,6 +996,7 @@ async function doExport() {
   const stamp = new Date().toISOString().slice(0, 10);
   const name = `vento-${stamp}`;
   modal.hidden = false;
+  let done = false;
   const progress = (i, n, W, H) => {
     $('#modal-title').textContent = `Sheet ${i + 1} of ${n}`;
     $('#modal-sub').textContent = `${W.toLocaleString('en-US')} × ${H.toLocaleString('en-US')} px · ${S.format.toUpperCase()}`;
@@ -1014,6 +1020,7 @@ async function doExport() {
       `Done: ${plural(files.length, 'sheet', 'sheets')} at 300 dpi.` +
         (low ? ` Heads up: ${plural(low, 'image has', 'images have')} low resolution for its size.` : '')
     );
+    done = true;
   } catch (err) {
     console.error(err);
     toast(err.message || 'Export failed.', 'error');
@@ -1021,6 +1028,50 @@ async function doExport() {
     modal.hidden = true;
     exporting = false;
   }
+  if (done) setTimeout(showThanks, 600);
+}
+
+// ---------- "buy me a coffee" after a download ----------
+const PIX_CODE = '00020101021126580014br.gov.bcb.pix0136667603f2-4ba2-4767-83dd-30633e6d7a0e5204000053039865802BR5914LUCAS CARVALHO6008CURITIBA62070503***63041D0D';
+const PAY_QR = { pix: ['img/pix-qr.svg', 'PIX QR code'], paypal: ['img/paypal-qr.svg', 'PayPal QR code'] };
+
+function showThanks() {
+  $('#thanks').hidden = false;
+  $('#thanks-close').focus();
+}
+function hideThanks() {
+  $('#thanks').hidden = true;
+}
+async function copyPix() {
+  const btn = $('#pix-copy');
+  try {
+    await navigator.clipboard.writeText(PIX_CODE);
+  } catch {
+    const ta = Object.assign(document.createElement('textarea'), { value: PIX_CODE });
+    document.body.append(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+  }
+  const label = btn.lastChild;
+  label.textContent = ' Copied · thank you!';
+  setTimeout(() => (label.textContent = ' Copy PIX code'), 2400);
+}
+function payTab(key) {
+  for (const b of $('#pay-tabs').children) b.classList.toggle('on', b.dataset.pay === key);
+  for (const o of document.querySelectorAll('.pay-opts')) o.hidden = o.dataset.for !== key;
+  const qr = $('#pay-qr');
+  [qr.src, qr.alt] = PAY_QR[key];
+}
+function bindThanks() {
+  $('#pay-tabs').addEventListener('click', (e) => {
+    const k = e.target.closest('[data-pay]')?.dataset.pay;
+    if (k) payTab(k);
+  });
+  $('#pix-copy').addEventListener('click', copyPix);
+  $('#thanks-close').addEventListener('click', hideThanks);
+  $('#thanks-later').addEventListener('click', hideThanks);
+  $('#thanks').addEventListener('click', (e) => { if (e.target.id === 'thanks') hideThanks(); });
 }
 
 async function newAlbum() {
